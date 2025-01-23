@@ -128,9 +128,9 @@ function ruleToDiv(rule) {
       text : sections[i].raw,
     }).appendTo(div);
   }
-
+  
   return div;
-};
+}
 
 tracery.Grammar.prototype.referenceVisualization = function(holder, settings) {
 
@@ -179,7 +179,7 @@ tracery.TraceryNode.prototype.visualizeExpansion = function(holder, settings) {
       }).appendTo(div);
     });
   }
-
+  
   if (this.children) {
     var childHolder = $("<div/>", {
       class : "children",
