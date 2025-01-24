@@ -1,30 +1,30 @@
 ﻿
-let CharMapper = GetToken;
+let CharMapper = GetTokenName;
 
 
-function LexCharsToTokens (rawText) {
-    var tokens = [];
-    var errors = [];
+function LexCharsToTokenNames (rawText) {
     
-
-    for (var i = 0; i < rawText.length; i++) {
+    const tokenNames  = [];
+    const errors = [];
+    
+    for (let i = 0; i < rawText.length; i++) {
 
         if (errors.length > 0){
             console.log("Lex Chars Failed. Error Message: " + errors[0]);
             return errors;
         }
         
-        var char = rawText.charAt(i);
-        var token = CharMapper(char);
+        const char = rawText.charAt(i);
+        const token = CharMapper(char);
         
         if (token){
-            tokens.push()
+            tokenNames.push()
         } else{
             errors.push("Lexing Error at Char Pos " + i + " | Unknown character: " + char);
         }
     }
     
-    return tokens;
+    return tokenNames;
 }
 
 function parseText (rule) {

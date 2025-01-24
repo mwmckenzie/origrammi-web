@@ -410,10 +410,10 @@ charTokenMap = {
 
 
 /**
- * @param {string} char
- * @returns {string|null}
+ * @param {string} char - Single char look-up value.
+ * @returns {string|null} Token Name or null if char not found.
  */
-GetToken = function(char) {
+GetTokenName = function(char) {
     return char in charTokenMap ? charTokenMap[char] : null;
 }
 
