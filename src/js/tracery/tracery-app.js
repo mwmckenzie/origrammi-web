@@ -28,13 +28,18 @@ const DIV_TAG_END = "</div>";
 
 const SELECT_TAG = "<select/>";
 
-OPTION_TAG_START = "<option>";
-OPTION_TAG_END = "</option>";
+const OPTION_TAG_START = "<option>";
+const OPTION_TAG_END = "</option>";
 
 const editModeValues = {
     json: "json",
     visual: "visual",
     step: "step"
+}
+
+const visualizationModes = {
+    expansion: "expansion",
+    distribution: "distribution"
 }
 
 /**
@@ -125,7 +130,7 @@ function createVisualizationSelectDropdown() {
     return $(SELECT_TAG, {
         id: "visualization-select",
         html: ["expansion", "distribution"].map(function (item) {
-            return "<option>" + item + "</option>";
+            return OPTION_TAG_START + item + OPTION_TAG_END;
         }).join("")
     }).appendTo($("#visualization .controls")).change(function () {
         var viz = $(this).val();
@@ -151,8 +156,6 @@ function createGenerateCountSelectDropdown(elemToAppendTo) {
         generate();
     });
 }
-
-
 
 /**
  * Creates and appends a "reroll" button to the specified element.
@@ -276,7 +279,6 @@ function createGrammarSelectControl(elemToAppendTo) {
 }
 
 
-
 /**
  * Creates and appends login controls to the specified DOM element.
  *
@@ -289,7 +291,6 @@ function createLoginControls(elemToAppendTo) {
         class: "login-id"
     }).appendTo(elemToAppendTo);
 }
-
 
 /**
  * Creates and appends a dropdown for selecting the editing mode. The dropdown allows users
@@ -341,7 +342,7 @@ function setMode(mode) {
     let currentMode = mode;
     console.log("Set mode " + currentMode);
 
-    app.editMode = "json";
+    app.editMode = editModeValues.json;
 
     setDefaultUIView();
 
@@ -349,7 +350,7 @@ function setMode(mode) {
 
     switch (currentMode) {
 
-        case "authoring":
+        case editModeValues.authoring :
 
             // Various controls for the output
             var outputControls = $("#output .content-header .controls");
@@ -371,9 +372,9 @@ function setMode(mode) {
             //createVisualEditingModeToggle(grammarControls);
 
             break;
-        case "tutorial" :
+        case appModes.tutorial :
             break;
-        case "browsing" :
+        case appModes.browsing :
             break;
     }
 
@@ -389,7 +390,6 @@ function setMode(mode) {
  */
 function setEditMode(editMode) {
     app.editMode = setEditMode;
-
 }
 
 /**
@@ -405,7 +405,7 @@ function executeWithDefaults() {
     elem.val("landscape");
     loadGrammar(testGrammars[elem.val()]);
     generate();
-    setVisualization("expansion");
+    setVisualization(visualizationModes.expansion);
 }
 
 //===============================================================
@@ -439,7 +439,6 @@ function setRandomSeed() {
     setSeed(Math.floor(Math.random() * 9999999), true, false);
 }
 
-
 /**
  * Toggles the seed lock state in the application.
  * When toggled, updates the UI to reflect the locked or unlocked state
@@ -455,7 +454,6 @@ function toggleSeedLock() {
         $("#gen-seed-lock").removeClass("locked");
     console.log(app.seedLocked);
 }
-
 
 /**
  * Reparses a given raw grammar string and performs validation, error handling,
@@ -542,22 +540,6 @@ function handleErrors(errors) {
     }
 }
 
-/**
- * Rebuilds the list of symbols used in the application's grammar and updates the dropdown menu.
- * Dynamically generates a list of options based on the symbols available in the grammar,
- * and refreshes the "#origin-select" dropdown with the updated list.
- *
- * @return {void} Does not return a value. Updates the DOM element with the rebuilt list.
- */
-function rebuildSymbolList() {
-
-    const originOptions =
-        Object.keys(app.grammar.symbols).map(function (symbol) {
-            return OPTION_TAG_START + symbol + OPTION_TAG_END;
-        }).join("");
-
-    $("#origin-select").html(OPTION_TAG_START + "origin" + OPTION_TAG_END + originOptions);
-}
 
 
 /**
@@ -595,8 +577,8 @@ function generate(preventRecursion = false) {
     app.grammar.clearState();
 
     var outputDiv = $("#output .content");
-    outputDiv.html("");
-
+    clearHtmlElement(outputDiv);
+    
     app.generatedRoots = [];
     for (var i = 0; i < app.generateCount; i++) {
         var root = generateRoot();
@@ -616,7 +598,6 @@ function generate(preventRecursion = false) {
 //===============================================================
 //===============================================================
 // UI
-
 
 /**
  * Renames the grammar by updating its title with the given name.
@@ -680,10 +661,12 @@ function loadGrammar(grammar) {
  * @return {void} Does not return a value, operates directly on the visualization DOM element.
  */
 function refreshVisualization() {
+    
     const holder = $("#visualization .holder");
-    holder.html("");
+    clearHtmlElement(holder);
+    
     switch (app.vizMode) {
-        case "distribution":
+        case visualizationModes.distribution:
             const virtualGen = 100;
             for (let i = 0; i < virtualGen; i++) {
                 const root = generateRoot();
@@ -691,7 +674,7 @@ function refreshVisualization() {
             }
             app.grammar.distributionVisualization(holder);
             break;
-        case "expansion":
+        case visualizationModes.expansion:
             for (let j = 0; j < app.generatedRoots.length; j++) {
                 app.generatedRoots[j].visualizeExpansion(holder, {
                     active: app.stepIterator.node
@@ -772,6 +755,14 @@ function createRuleElement(rule, key, ruleIndex, rulesContainer) {
 }
 
 
+/**
+ * Adds a stack of rule sets to the specified container. Each rule set is rendered as a visual group,
+ * and the last rule set in the stack is marked as active.
+ *
+ * @param {HTMLElement|jQuery} rulesContainer The container where the rule sets will be appended.
+ * @param {Array<Object>} stack An array of rule set objects. Each rule set should have a `defaultRules` property containing an array of rules.
+ * @return {void} Does not return anything.
+ */
 function addRuleStack(rulesContainer, stack) {
     stack.forEach((ruleset, index) => {
         const rulesetContainer = $(DIV_TAG, {
@@ -792,6 +783,13 @@ function addRuleStack(rulesContainer, stack) {
 }
 
 
+/**
+ * Generates an array of formatted grammar lines based on the provided keys and grammar object.
+ *
+ * @param {string[]} keys - An array of keys to access values in the grammar object.
+ * @param {Object} grammar - An object containing key-value pairs where values can be strings or arrays of strings.
+ * @return {string[]} An array of formatted strings representing the grammar lines for the given keys.
+ */
 function generateGrammarLines(keys, grammar) {
     
     const formatGrammarValue = (value) =>
@@ -806,6 +804,13 @@ function generateGrammarLines(keys, grammar) {
 }
 
 
+/**
+ * Refreshes the grammar output display based on the application's current edit mode.
+ * This function updates the DOM to reflect changes in grammar rules, either in the visual editing mode,
+ * stepped editing mode, or a raw JSON view.
+ *
+ * @return {void} This method does not return a value; it updates the grammar output in the DOM.
+ */
 function refreshGrammarOutput() {
 
     const holder = $("#grammar-holder");
