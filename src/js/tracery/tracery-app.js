@@ -42,6 +42,13 @@ const visualizationModes = {
     distribution: "distribution"
 }
 
+const appModes = {
+    undefined: undefined,
+    authoring: "authoring",
+    tutorial: "tutorial",
+    browsing: "browsing"
+};
+
 /**
  * Represents the configuration object for an application.
  *
@@ -686,6 +693,36 @@ function refreshVisualization() {
 }
 
 /**
+ * Encapsulates a given text string within HTML option tags.
+ *
+ * This function takes a string input and surrounds it with predefined
+ * start and end tags for an HTML <option> element. The resulting string
+ * can be used to represent an HTML option in dropdown menus or similar
+ * components.
+ *
+ * @param {string} text - The text content to be wrapped in HTML <option> tags.
+ * @returns {string} The input text wrapped in <option> start and end tags.
+ */
+const wrapInOptionTag = text => OPTION_TAG_START + text + OPTION_TAG_END;
+
+/**
+ * Rebuilds the list of symbols used in the application's grammar and updates the dropdown menu.
+ * Dynamically generates a list of options based on the symbols available in the grammar,
+ * and refreshes the "#origin-select" dropdown with the updated list.
+ *
+ * @return {void} Does not return a value. Updates the DOM element with the rebuilt list.
+ */
+function rebuildSymbolList() {
+
+    if (!app.grammar || !app.grammar.symbols) return;
+
+    const originOptions =
+        Object.keys(app.grammar.symbols).map(wrapInOptionTag).join("");
+
+    $("#origin-select").html(wrapInOptionTag("origin") + originOptions);
+}
+
+/**
  * Clears the inner HTML content of the specified HTML element.
  *
  * @param {jQuery} elem - A jQuery object representing the HTML element to be cleared.
@@ -817,7 +854,7 @@ function refreshGrammarOutput() {
     clearHtmlElement(holder);
 
     const rawGrammar = app.grammar.raw;
-    const rawKeys = Object.keys(rawGrammar);
+    const rawKeys = rawGrammar ? Object.keys(rawGrammar) : [];
 
     switch (app.editMode) {
 

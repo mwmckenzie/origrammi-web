@@ -1,0 +1,463 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multi-Window Interface Web App</title>
+  <style>
+    /* Reset some defaults */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    /* Main layout: two columns */
+    .layout {
+      display: flex;
+      height: 100vh;
+    }
+    /* Left column: fixed width (e.g., 40% of the viewport) */
+    .layout__left {
+      width: 40%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #ccc;
+    }
+    /* Right column: takes remaining space */
+    .layout__right {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    /* Left column panels */
+    .layout__left-upper {
+      flex: 1;
+      border-bottom: 1px solid #ccc;
+      padding: 10px;
+      background: #fff;
+    }
+    .layout__left-lower {
+      flex: 1;
+      padding: 10px;
+      background: #f9f9f9;
+      overflow-y: auto;
+    }
+    /* Input window styling */
+    .input__window {
+      width: 100%;
+      height: 100%;
+      font-size: 16px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: none;
+    }
+    /* Log window styling */
+    .log__window {
+      width: 100%;
+      height: 100%;
+      font-size: 14px;
+      background: #222;
+      color: #eee;
+      padding: 10px;
+      overflow-y: auto;
+      border-radius: 4px;
+    }
+    /* Right column results container */
+    .results__container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: lightgrey;
+    }
+    /* Each generated sub-panel */
+    .results__panel {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      padding: 10px;
+    }
+    .results__panel-header {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .results__panel-content {
+      font-family: monospace;
+      background: #f4f4f4;
+      padding: 5px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    /* Example syntax highlighting token styles */
+    .token--keyword {
+      color: blue;
+    }
+    .token--string {
+      color: green;
+    }
+    .token--number {
+      color: red;
+    }
+    .token--comment {
+      color: gray;
+      font-style: italic;
+    }
+
+    .tracery-node {
+      display:inline-block;
+      box-shadow:1px 1px 3px rgba(0, 0, 0, .5);
+      border-radius:5px;
+      margin:1px;
+      padding:1px;
+    }
+    .tracery-node0 {
+      background-color:rgba(185, 255, 255, 1);
+    }
+    .tracery-node1 {
+      background-color:rgba(255, 255, 255, .3);
+    }
+
+    .tracery-node1.dynamic {
+      background-color:rgba(255, 190, 25, .7);
+    }
+
+    .tracery-node1.missing {
+      background-color:rgba(255, 0, 0, .6);
+    }
+    .tracery-node2 {
+      background-color:rgba(255, 100, 55, 1);
+    }
+    .token--keyword.active {
+      box-shadow:inset 0px 0px 2px 3px rgba(55, 255, 255, 1);
+      box-shadow :1px 1px 3px rgba(0, 0, 0, .5);
+    }
+    .tracery-node0.active {
+      box-shadow:inset 0px 0px 2px 3px rgba(55, 255, 255, 1);
+      box-shadow :1px 1px 3px rgba(0, 0, 0, .5);
+    }
+
+    .token--keyword .header {
+      padding:2px;
+      font-size:10px;
+      font-style:italic;
+    }
+    .token--keyword .children {
+      display:inline-block;
+    }
+
+    /* Initial state: collapsed */
+    .collapsible__content {
+      max-height: 0;
+      /*overflow: hidden;*/
+      overflow-y: auto;
+      transition: max-height 0.3s ease;
+    }
+
+    /* Expanded state */
+    .collapsible--expanded .collapsible__content {
+      /* You can use a fixed max-height, or use a trick with auto heights if necessary.
+         Here, 500px is used as an example; adjust as needed or use JavaScript for dynamic height */
+      max-height: 500px;
+    }
+
+    /* Optional styling for the header to indicate interactivity */
+    .collapsible__header {
+      cursor: pointer;
+      padding: 10px;
+      background-color: #e0e0e0;
+      border: 1px solid #ccc;
+    }
+    
+  </style>
+</head>
+<body>
+<div class="layout">
+  <!-- Left column -->
+  <div class="layout__left">
+    <!-- Upper left: Input window -->
+    <div class="layout__left-upper">
+      <textarea class="input__window" placeholder="Type your text here..."></textarea>
+    </div>
+    <!-- Lower left: Log panel -->
+    <div class="layout__left-lower">
+      <div class="log__window">
+        <p>[Log] Application started.</p>
+        <!-- Additional log messages will appear here -->
+      </div>
+    </div>
+  </div>
+  <!-- Right column -->
+  <div class="layout__right">
+    <div class="results__container">
+      <div class="collapsible tracery-node tracery-node-1" id="myCollapsible">
+        <div class="collapsible__header" tabindex="0" role="button" aria-expanded="false">
+          Click to Expand/Collapse
+        </div>
+        <div class="collapsible__content">
+          <div class="tracery-node tracery-node-1 active missing">
+            <div class="header">'Where's the photosculpture, Abs? You promised it'd be finished by last Wartsday,' Lord Xon-Jox's voice came through the lepton-transmitter.  'Yeah, I'll have it done in the blink of an eye', Abs promised, hanging up the holophone. Abs sighed expressively.The only thing that could really, I mean really, inspire a photosculpture would be the famously handsome spies of Planet Stax-Fly and for that, he'd have to go to the Danius system. Abs punched 'Danius' into the electroview. There was still one ticket left on the express transmuto tram, but he'd have to take a nanorail the rest of the way to Planet Stax-Fly.'</div>
+            <div class="children">
+              <div class="tracery-node tracery-node1">
+                <div class="header">origin</div>
+                <div class="children">
+                  <div class="tracery-node tracery-node1">
+                    <div class="header">plot</div>
+                    <div class="children">
+                      <div class="tracery-node tracery-node1">
+                        <div class="header">artPlot</div>
+                        <div class="children"><div class="tracery-node tracery-node1">
+                          <div class="header">artDemand</div>
+                          <div class="children"><div class="tracery-node tracery-node0 missing">
+                            <div class="header">'Where's the </div>
+                          </div>
+                            <div class="tracery-node tracery-node1 dynamic">
+                              <div class="header">mcArt</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">photosculpture</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">, </div></div><div class="tracery-node tracery-node1 dynamic"><div class="header">mc</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">Abs</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">? You promised it'd be finished by last </div></div><div class="tracery-node tracery-node1"><div class="header">firstSyl</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">W</div></div></div></div><div class="tracery-node tracery-node1"><div class="header">middleSyl</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">art</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">sday,' </div></div><div class="tracery-node tracery-node1 dynamic"><div class="header">mcBoss</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">Lord Xon-Jox</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">'s voice came through the </div></div><div class="tracery-node tracery-node1"><div class="header">communicationDevice</div><div class="children"><div class="tracery-node tracery-node1"><div class="header">physicsParticle</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">lepton</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">-transmitter</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">.</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">  'Yeah, I'll have it done in </div></div><div class="tracery-node tracery-node1"><div class="header">shortTime</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">the blink of an eye</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">', </div></div><div class="tracery-node tracery-node1 dynamic"><div class="header">mc</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">Abs</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> promised, hanging up the </div></div><div class="tracery-node tracery-node1"><div class="header">communicationDevice</div><div class="children"><div class="tracery-node tracery-node1"><div class="header">scienceBlargleStart</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">holo</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">phone</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">. </div></div><div class="tracery-node tracery-node1"><div class="header">mcResponded</div><div class="children"><div class="tracery-node tracery-node1 dynamic"><div class="header">mc</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">Abs</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> sighed </div></div><div class="tracery-node tracery-node1"><div class="header">conversationally</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">expressively</div></div></div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">.</div></div><div class="tracery-node tracery-node1"><div class="header">artQuest</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">The only thing that could really, I mean really, inspire a </div></div><div class="tracery-node tracery-node1 dynamic"><div class="header">mcArt</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">photosculpture</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> would be the famously </div></div><div class="tracery-node tracery-node1"><div class="header">sexy</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">handsome</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> </div></div><div class="tracery-node tracery-node1"><div class="header">occupation</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">spy</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> of Planet </div></div><div class="tracery-node tracery-node1 dynamic"><div class="header">mcDestination</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">Stax-Fly</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> and for that, he'd have to go to the </div></div><div class="tracery-node tracery-node1 dynamic"><div class="header">mcDestinationSystem</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">Danius</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> system. </div></div><div class="tracery-node tracery-node1"><div class="header">travelPlot</div><div class="children"><div class="tracery-node tracery-node1 dynamic"><div class="header">mc</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">Abs</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> punched '</div></div><div class="tracery-node tracery-node1 dynamic"><div class="header">mcDestinationSystem</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">Danius</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">' into the </div></div><div class="tracery-node tracery-node1"><div class="header">communicationDevice</div><div class="children"><div class="tracery-node tracery-node1"><div class="header">scienceBlargleStart</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">electro</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">view</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">. There was still one ticket left on the </div></div><div class="tracery-node tracery-node1"><div class="header">transportSystem</div><div class="children"><div class="tracery-node tracery-node1"><div class="header">transitMod</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">express</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> </div></div><div class="tracery-node tracery-node1"><div class="header">scienceBlargleStart</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">transmuto</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> </div></div><div class="tracery-node tracery-node1"><div class="header">transitPlain</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">tram</div></div></div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">, but he'd have to take a </div></div><div class="tracery-node tracery-node1"><div class="header">transportSystem</div><div class="children"><div class="tracery-node tracery-node1"><div class="header">scienceBlargleStart</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">nano</div></div></div></div><div class="tracery-node tracery-node1"><div class="header">transitPlain</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">rail</div></div></div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header"> the rest of the way to Planet </div></div><div class="tracery-node tracery-node1 dynamic"><div class="header">mcDestination</div><div class="children"><div class="tracery-node tracery-node0 missing"><div class="header">Stax-Fly</div></div></div></div><div class="tracery-node tracery-node0 missing"><div class="header">.'</div></div></div></div></div></div></div></div></div></div></div></div></div></div>
+          
+        </div>
+      </div>
+      
+      <div class="tracery-node tracery-node1 active">
+        <div class="header">expression</div>
+        <div class="children">
+          <div class="tracery-node tracery-node1">
+            <div class="header token--keyword">keyword</div>
+            <div class="children">
+              <div class="tracery-node tracery-node0">
+                <div class="header">function</div>
+              </div>
+            </div>
+          </div>
+          <div class="tracery-node tracery-node1">
+            <div class="header">literal</div>
+            <div class="children">
+              <div class="tracery-node tracery-node0">
+                <div class="header">"hello world!"</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Example generated sub-panel -->
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <!-- More generated panels will be dynamically inserted here -->
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <div class="token--keyword header">
+            <span class="token--keyword.active header">function</span>
+            <div class="children">
+              <span class="token--keyword">function</span>
+            </div>
+          <span class="token--keyword.active">function</span>
+          </div>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+      <div class="results__panel">
+        <div class="results__panel-header">Parsed Tokens - Stage 1</div>
+        <div class="results__panel-content">
+          <span class="token--keyword">function</span>
+          <span> </span>
+          <span class="token--string">"helloWorld"</span>
+          <span> </span>
+          <span class="token--comment">// sample token</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/GenericLanguageSystem/gls-editor-app-es6-nojquery.js"></script>
+<script>
+  // Assuming your refactored app.js creates an App instance that binds UI events,
+  // you can simply initialize the app here.
+  // For example, if app.js is written as an ES6 module or script that defines the App class:
+  (function() {
+    // Create a new App instance. Optionally, you can pass in initial grammar data.
+    const myApp = new App();
+    myApp.init();
+    myApp.logController.bindLogElement(".log__window")
+    myApp.uiController.bindUserInput(".input__window")
+    // The UIController inside the App will automatically bind the user input event.
+  })();
+  
+  console.log("App initialized.");
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const collapsibleHeaders = document.querySelectorAll(".collapsible__header");
+
+    collapsibleHeaders.forEach(header => {
+      header.addEventListener("click", () => {
+        const container = header.parentElement;
+        const isExpanded = container.classList.toggle("collapsible--expanded");
+        header.setAttribute("aria-expanded", isExpanded);
+      });
+
+      // Optionally, support keyboard toggling:
+      header.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          header.click();
+        }
+      });
+    });
+  });
+
+</script>
+</body>
+</html>

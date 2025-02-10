@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tracery Example</title>
+  <!-- Include the tracery library -->
+  <script src="js/tracery/tracery.js"></script>
+</head>
+<body>
+<h1>Tracery Example</h1>
+<!-- A container to display the generated text -->
+<div id="output"></div>
+
+<script>
+  // Define a simple grammar as a JavaScript object.
+  // Each key is a symbol, and the value is an array of possible expansions.
+  var rawGrammar = {
+    "origin": ["Hello, #noun#!"],
+    "noun": ["world", "everyone", "tracery", "peeps"]
+  };
+
+  // Create a grammar from the raw grammar object using the tracery API.
+  var grammar = tracery.createGrammar(rawGrammar);
+
+  // Optionally, you can add modifiers if you have any defined.
+  // For example, to add an "uppercase" modifier:
+  grammar.addModifiers({
+    uppercase: function(text) {
+      return text.toUpperCase();
+    }
+  });
+
+  // Expand the 'origin' rule.
+  // The flatten method returns the fully expanded string.
+  var result = grammar.flatten("#origin#");
+
+  // Insert the result into the HTML page.
+  document.getElementById("output").textContent = result;
+</script>
+</body>
+</html>

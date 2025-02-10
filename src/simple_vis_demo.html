@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tracery Visualization Example</title>
+  <!-- Include jQuery (required by the visualization code) -->
+  <script src="js/thirdparty/jquery.min.js"></script>
+  <!-- Include the base tracery library -->
+  <script src="js/tracery/tracery.js"></script>
+  <!-- Include the visualization extension -->
+  <script src="js/tracery/tracery-vis.js"></script>
+  <style>
+    /* Some minimal CSS to help visualize the output */
+    .tracery-usage-graph {
+      margin: 10px;
+      border: 1px solid #ccc;
+      padding: 5px;
+    }
+    .tracery-usage-graph .label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .bars .bar {
+      background: #3498db;
+      margin: 2px 0;
+      position: relative;
+      color: #fff;
+    }
+    .bar-label {
+      position: absolute;
+      left: 5px;
+      top: 0;
+      font-size: 0.9em;
+    }
+    .grammar-viz .symbol {
+      margin: 10px;
+      border: 1px solid #aaa;
+      padding: 5px;
+    }
+    .grammar-viz .header {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .tracery-node {
+      border: 1px solid #333;
+      padding: 5px;
+      margin: 5px;
+    }
+    .tracery-node.active {
+      border-color: red;
+    }
+    .children {
+      margin-left: 20px;
+      border-left: 1px dashed #aaa;
+      padding-left: 10px;
+    }
+    .rule {
+      border: 1px solid #666;
+      margin: 3px;
+      padding: 3px;
+    }
+    .section {
+      display: inline-block;
+      margin: 1px;
+      padding: 1px;
+    }
+    .section0 {
+      background-color: #f0f0f0;
+    }
+    .section1 {
+      background-color: #ffd700;
+    }
+    .section2 {
+      background-color: #90ee90;
+    }
+  </style>
+</head>
+<body>
+<h1>Tracery Visualization Example</h1>
+
+<!-- Container for our visualizations -->
+<div id="visualization"></div>
+
+<script>
+  $(document).ready(function(){
+
+    const app = {
+      generateCount: 1,
+      mode: undefined,
+      grammar: grammar,
+      seedLocked: false
+    };
+    
+    // Define a simple grammar with three symbols.
+    var rawGrammar = {
+      "origin": ["Once upon a time, there was a #creature# living in a #place#."],
+      "creature": ["dragon", "unicorn", "wizard"],
+      "place": ["forest", "castle", "village"]
+    };
+
+    // Create a grammar instance using the tracery API.
+    var grammar = tracery.createGrammar(rawGrammar);
+
+    // Expand a starting rule. (This builds an expansion tree.)
+    var expansion = grammar.expand("#origin#");
+
+    // --- Visualizations ---
+
+    // 1. Distribution Visualization: Show how often each symbol and its rules were used.
+    var distributionHolder = $("<div/>").appendTo("#visualization");
+    $("<h2/>", { text: "Symbol Usage Distribution" }).appendTo(distributionHolder);
+    grammar.distributionVisualization(distributionHolder, {});
+
+    // 2. Cascade Visualization: Display the cascade/hierarchy of rules for each symbol.
+    var cascadeHolder = $("<div/>").appendTo("#visualization");
+    $("<h2/>", { text: "Grammar Cascade" }).appendTo(cascadeHolder);
+    grammar.cascadeVisualization(cascadeHolder, {});
+
+    // 3. Expansion Tree Visualization: Show the tree structure of the expansion.
+    var expansionHolder = $("<div/>").appendTo("#visualization");
+    $("<h2/>", { text: "Expansion Tree" }).appendTo(expansionHolder);
+    expansion.visualizeExpansion(expansionHolder, { active: expansion });
+
+    // 4. Raw Grammar Pretty Print: Display the original raw grammar in a nicely formatted way.
+    var rawGrammarHolder = $("<div/>").appendTo("#visualization");
+    $("<h2/>", { text: "Raw Grammar" }).appendTo(rawGrammarHolder);
+    // Assume escapeHTML is defined in your visualization file or elsewhere.
+    var prettyHTML = tracery.rawGrammarToPrettyHTML(rawGrammar);
+    $("<div/>").html(prettyHTML).appendTo(rawGrammarHolder);
+  });
+</script>
+</body>
+</html>

@@ -9,7 +9,9 @@ tracery.Grammar.prototype.distributionVisualization = function(holder, settings)
   var keys = Object.keys(this.symbols);
   var unused = [];
   $.each(keys, function(index, key) {
-    var s = app.grammar.symbols[key];
+    
+    //var s = app.grammar.symbols[key];
+    var s = this.grammar.symbols[key];
     if (s.uses.length > 0) {
       // Analyze use data
       var totalDepth = 0;
