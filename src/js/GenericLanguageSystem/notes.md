@@ -46,13 +46,51 @@ Expression Builder
 
 ### Tokenization Layers
 
+State Machines
+
+
 
 <hr/> 
 
 
 ### Working Reference Examples
 
+*Notes*
 
+- Plain text
+
+> **Source**
+```
+This is  source   text!
+  With a tab (and a set of "quotes")
+```
+
+<br>
+
+*Notes*
+
+- First stage looks roughly the same
+- Translated to a token per char
+- Allows for identifying illegal chars per initial rules
+- Note we have extra spaces in some text
+
+> **Char Symbol Tokens**
+```
+UpperT LowerH LowerI LowerS SpaceChar LowerI LowerS SpaceChar SpaceChar 
+LowerS LowerO LowerU LowerR LowerC LowerE SpaceChar SpaceChar SpaceChar 
+LowerT LowerE LowerX LowerT ExclamationMarkChar UnixLineFeedChar SpaceChar 
+SpaceChar UpperW LowerI LowerT LowerH SpaceChar LowerA SpaceChar LowerT 
+LowerA LowerB SpaceChar LeftParenthesisChar LowerA LowerN LowerD SpaceChar 
+LowerA SpaceChar LowerS LowerE LowerT SpaceChar LowerO LowerF SpaceChar 
+QuotationMarkChar LowerQ LowerU LowerO LowerT LowerE LowerS QuotationMarkChar 
+RightParenthesisChar
+```
+
+<br>
+
+*Notes*
+
+- Consider a 'clean-up' layer between each evaluation state?
 
 <hr/> 
 

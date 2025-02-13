@@ -647,7 +647,9 @@ class App {
     }
 
     processUserInput(newText){
-        this.logController.log(`User input: ${newText}`);
+        const tokenMaps = LexCharsToTokenMaps(newText);
+        const tokenMapsStr = tokenMaps.map((tokenMap) => tokenMap.tid).join(" ");
+        this.logController.log(`Tokenized user input: ${tokenMapsStr}`);
     }
 
     /**

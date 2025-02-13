@@ -2,9 +2,17 @@
 let CharMapper = GetTokenName;
 
 
-function LexCharsToTokenNames (rawText) {
+
+/**
+ * Converts a string of characters into a map of tokens where each character is matched to a corresponding token.
+ * Any characters that cannot be mapped to a token result in an error being logged.
+ *
+ * @param {string} rawText The input string to be lexically analyzed and converted into token maps.
+ * @return {Array|Array<TokenMap>} Returns an array of token mappings if successful. If there are unrecognized characters, an array of error messages is returned instead.
+ */
+function LexCharsToTokenMaps (rawText) {
     
-    const tokenNames  = [];
+    const tokenMaps  = [];
     const errors = [];
     
     for (let i = 0; i < rawText.length; i++) {
@@ -15,16 +23,18 @@ function LexCharsToTokenNames (rawText) {
         }
         
         const char = rawText.charAt(i);
-        const token = CharMapper(char);
+        const token = GetCharTokenMap(char);
         
         if (token){
-            tokenNames.push()
+            tokenMaps.push(token)
         } else{
             errors.push("Lexing Error at Char Pos " + i + " | Unknown character: " + char);
         }
     }
     
-    return tokenNames;
+    console.log("Lex Chars Succeeded. Token Names: " + tokenMaps);
+    
+    return tokenMaps;
 }
 
 function parseText (rule) {

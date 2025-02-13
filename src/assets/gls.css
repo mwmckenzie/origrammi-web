@@ -1,0 +1,166 @@
+﻿/* Reset some defaults */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+/* Main layout: two columns */
+.layout {
+    display: flex;
+    height: 100vh;
+}
+/* Left column: fixed width (e.g., 40% of the viewport) */
+.layout__left {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #ccc;
+}
+/* Right column: takes remaining space */
+.layout__right {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+/* Left column panels */
+.layout__left-upper {
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+    background: #fff;
+}
+.layout__left-lower {
+    flex: 1;
+    padding: 10px;
+    background: #f9f9f9;
+    overflow-y: auto;
+}
+/* Input window styling */
+.input__window {
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: none;
+}
+/* Log window styling */
+.log__window {
+    width: 100%;
+    height: 100%;
+    font-size: 14px;
+    background: #222;
+    color: #eee;
+    padding: 10px;
+    overflow-y: auto;
+    border-radius: 4px;
+}
+/* Right column results container */
+.results__container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: lightgrey;
+}
+/* Each generated sub-panel */
+.results__panel {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    padding: 10px;
+}
+.results__panel-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.results__panel-content {
+    font-family: monospace;
+    background: #f4f4f4;
+    padding: 5px;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+/* Example syntax highlighting token styles */
+.token--keyword {
+    color: blue;
+}
+.token--string {
+    color: green;
+}
+.token--number {
+    color: red;
+}
+.token--comment {
+    color: gray;
+    font-style: italic;
+}
+
+.tracery-node {
+    display:inline-block;
+    box-shadow:1px 1px 3px rgba(0, 0, 0, .5);
+    border-radius:5px;
+    margin:1px;
+    padding:1px;
+}
+.tracery-node-leaf {
+    background-color:rgba(185, 255, 255, 1);
+}
+.tracery-node-branch {
+    background-color:rgba(255, 255, 255, .3);
+}
+
+.tracery-node-branch.dynamic {
+    background-color:rgba(255, 190, 25, .7);
+}
+
+.tracery-node-branch.missing {
+    background-color:rgba(255, 0, 0, .6);
+}
+.tracery-node2 {
+    background-color:rgba(255, 100, 55, 1);
+}
+.token--keyword.active {
+    box-shadow:inset 0px 0px 2px 3px rgba(55, 255, 255, 1);
+    box-shadow :1px 1px 3px rgba(0, 0, 0, .5);
+}
+.tracery-node0.active {
+    box-shadow:inset 0px 0px 2px 3px rgba(55, 255, 255, 1);
+    box-shadow :1px 1px 3px rgba(0, 0, 0, .5);
+}
+
+.token--keyword .header {
+    padding:2px;
+    font-size:10px;
+    font-style:italic;
+}
+.token--keyword .children {
+    display:inline-block;
+}
+
+/* Initial state: collapsed */
+.collapsible__content {
+    max-height: 0;
+    /*overflow: hidden;*/
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+}
+
+/* Expanded state */
+.collapsible--expanded .collapsible__content {
+    /* You can use a fixed max-height, or use a trick with auto heights if necessary.
+       Here, 500px is used as an example; adjust as needed or use JavaScript for dynamic height */
+    max-height: 500px;
+}
+
+/* Optional styling for the header to indicate interactivity */
+.collapsible__header {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+}

@@ -418,5 +418,40 @@ GetTokenName = function(char) {
     return char in charTokenMap ? charTokenMap[char] : null;
 }
 
+/**
+ * @param {string} char - Single char look-up value.
+ * @returns {string|null} Token Name or null if char not found.
+ */
+GetTokenByValue = function(char) {
+    for (let key in charTokenMap) {
+        if (charTokenMap[key] === char) {
+            return key;
+        }
+    }
+    return null;
+}
 
+/**
+ * @param {string} char - Single char look-up value.
+ * @returns {TokenMap|null} Token Name or null if char not found.
+ */
+GetCharTokenMap = function(char) {
+    for (let key in charTokenMap) {
+        if (charTokenMap[key] === char) {
+            return new TokenMap(key, char);
+        }
+    }
+    return null;
+}
+
+class TokenMap{
+    constructor(tid, value) {
+        this.tid = tid;
+        this.value = value;
+    }
+    
+    toString() {
+        return `[TID: ${this.tid}, VALUE: ${this.value}]`
+    }
+}
 
