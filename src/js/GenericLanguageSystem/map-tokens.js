@@ -405,7 +405,10 @@ charTokenMap = {
     "HeartChar": "♥",
     "MusicNoteChar": "♪",
     "CheckMarkChar": "✓",
-    "CrossMarkChar": "✗"
+    "CrossMarkChar": "✗",
+    "ColonChar": ":",
+    "SemiColonChar": ";",
+    "CommaChar": ","
 };
 
 
@@ -455,3 +458,245 @@ class TokenMap{
     }
 }
 
+
+/**
+ * Converts a grouped token map (with nested key-value pairs)
+ * into a new object where each group is an array of token keys.
+ *
+ * @param {Object} groupedMap - The original grouped token map.
+ * @returns {Object} A new object mapping group names to arrays of token keys.
+ */
+ConvertGroupedTokenMap = function convertGroupedTokenMap(groupedMap) {
+    const result = {};
+    for (const group in groupedMap) {
+        if (groupedMap.hasOwnProperty(group)) {
+            // Extract only the keys from the nested object.
+            result[group] = Object.keys(groupedMap[group]);
+        }
+    }
+    return result;
+}
+
+const groupedCharTokenMap = {
+    "UppercaseLetterChar": [
+    "UpperA",
+    "UpperB",
+    "UpperC",
+    "UpperD",
+    "UpperE",
+    "UpperF",
+    "UpperG",
+    "UpperH",
+    "UpperI",
+    "UpperJ",
+    "UpperK",
+    "UpperL",
+    "UpperM",
+    "UpperN",
+    "UpperO",
+    "UpperP",
+    "UpperQ",
+    "UpperR",
+    "UpperS",
+    "UpperT",
+    "UpperU",
+    "UpperV",
+    "UpperW",
+    "UpperX",
+    "UpperY",
+    "UpperZ"
+],
+    "LowercaseLetterChar": [
+    "LowerA",
+    "LowerB",
+    "LowerC",
+    "LowerD",
+    "LowerE",
+    "LowerF",
+    "LowerG",
+    "LowerH",
+    "LowerI",
+    "LowerJ",
+    "LowerK",
+    "LowerL",
+    "LowerM",
+    "LowerN",
+    "LowerO",
+    "LowerP",
+    "LowerQ",
+    "LowerR",
+    "LowerS",
+    "LowerT",
+    "LowerU",
+    "LowerV",
+    "LowerW",
+    "LowerX",
+    "LowerY",
+    "LowerZ"
+],
+    "DecimalDigitNumberChar": [
+    "Number0",
+    "Number1",
+    "Number2",
+    "Number3",
+    "Number4",
+    "Number5",
+    "Number6",
+    "Number7",
+    "Number8",
+    "Number9"
+],
+    "SpaceSeparatorChar": [
+    "SpaceChar",
+    "NoBreakSpaceChar",
+    "EnQuadChar",
+    "EmQuadChar",
+    "EnSpaceChar",
+    "EmSpaceChar",
+    "ThreePerEmSpaceChar",
+    "FourPerEmSpaceChar",
+    "SixPerEmSpaceChar",
+    "FigureSpaceChar",
+    "PunctuationSpaceChar",
+    "ThinSpaceChar",
+    "HairSpaceChar",
+    "MediumMathematicalSpaceChar",
+    "IdeographicSpaceChar"
+],
+    "LineSeparatorChar": [
+    "LineSeparatorChar",
+    "UnixLineFeedChar",
+    "WindowsCarriageReturnChar",
+    "MacClassicLineFeedChar"
+],
+    "ParagraphSeparatorChar": [
+    "ParagraphSeparatorChar",
+    "HTMLParagraphBreakChar"
+],
+    "ControlChar": [
+    "NullChar",
+    "StartOfHeadingChar",
+    "StartOfTextChar",
+    "EndOfTextChar",
+    "EndOfTransmissionChar",
+    "EnquiryChar",
+    "AcknowledgeChar",
+    "BellChar",
+    "BackspaceChar",
+    "TabChar",
+    "VerticalTabChar",
+    "FormFeedChar",
+    "EscapeChar"
+],
+    "FormatChar": [
+    "ZeroWidthSpaceChar",
+    "ZeroWidthNonJoinerChar",
+    "ZeroWidthJoinerChar",
+    "WordJoinerChar",
+    "LeftToRightMarkChar",
+    "RightToLeftMarkChar",
+    "LeftToRightEmbeddingChar",
+    "RightToLeftEmbeddingChar",
+    "LeftToRightOverrideChar",
+    "RightToLeftOverrideChar",
+    "PopDirectionalFormattingChar",
+    "InvisibleSeparatorChar",
+    "InvisiblePlusChar"
+],
+    "ConnectorPunctuationChar": [
+    "UnderscoreChar",
+    "HebrewPunctuationMaqqefChar",
+    "UndertieChar",
+    "SpaceConnectorChar"
+],
+    "DashPunctuationChar": [
+    "HyphenMinusChar",
+    "EnDashChar",
+    "EmDashChar",
+    "FigureDashChar",
+    "HorizontalBarChar"
+],
+    "OpenPunctuationChar": [
+    "LeftParenthesisChar",
+    "LeftSquareBracketChar",
+    "LeftCurlyBraceChar",
+    "LeftAngleBracketChar",
+    "LeftDoubleAngleBracketChar"
+],
+    "ClosePunctuationChar": [
+    "RightParenthesisChar",
+    "RightSquareBracketChar",
+    "RightCurlyBraceChar",
+    "RightAngleBracketChar",
+    "RightDoubleAngleBracketChar"
+],
+    "InitialQuotePunctuationChar": [
+    "LeftDoubleQuotationMarkChar",
+    "LeftSingleQuotationMarkChar",
+    "ReversedDoublePrimeQuotationMarkChar",
+    "LowDoubleQuotationMarkChar",
+    "LowSingleQuotationMarkChar"
+],
+    "FinalQuotePunctuationChar": [
+    "RightDoubleQuotationMarkChar",
+    "RightSingleQuotationMarkChar",
+    "DoublePrimeQuotationMarkChar",
+    "HighReversedDoubleQuotationMarkChar",
+    "HighReversedSingleQuotationMarkChar"
+],
+    "OtherPunctuationChar": [
+    "ExclamationMarkChar",
+    "QuestionMarkChar",
+    "PeriodChar",
+    "EllipsisChar",
+    "MiddleDotChar",
+    "InterrobangChar",
+    "BulletChar",
+    "QuotationMarkChar",
+    "ApostropheChar"
+],
+    "MathSymbolChar": [
+    "PlusSignChar",
+    "MinusSignChar",
+    "MultiplicationSignChar",
+    "DivisionSignChar",
+    "EqualSignChar",
+    "NotEqualSignChar",
+    "GreaterThanSignChar",
+    "LessThanSignChar",
+    "GreaterThanOrEqualSignChar",
+    "LessThanOrEqualSignChar"
+],
+    "CurrencySymbolChar": [
+    "DollarSignChar",
+    "EuroSignChar",
+    "PoundSignChar",
+    "YenSignChar",
+    "IndianRupeeSignChar",
+    "BitcoinSignChar",
+    "CentSignChar",
+    "KoreanWonSignChar"
+],
+    "ModifierSymbolChar": [
+    "CircumflexAccentChar",
+    "AcuteAccentChar",
+    "GraveAccentChar",
+    "TildeChar",
+    "MacronChar",
+    "OverlineChar",
+    "BreveChar",
+    "DotAboveChar",
+    "RingAboveChar"
+],
+    "OtherSymbolChar": [
+    "AtSignChar",
+    "HashSignChar",
+    "AmpersandChar",
+    "PercentSignChar",
+    "StarChar",
+    "HeartChar",
+    "MusicNoteChar",
+    "CheckMarkChar",
+    "CrossMarkChar"
+]
+}

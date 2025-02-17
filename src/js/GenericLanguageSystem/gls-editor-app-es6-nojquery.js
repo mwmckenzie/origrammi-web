@@ -374,7 +374,7 @@ class UIController {
                 const newText = event.target.value;
                 // Delegate processing of user input to the App instance.
                 this.app.processUserInput(newText);
-            }, 300));
+            }, 500));
             
             this.app.logController.log("User input bound to event listener.");
         }
@@ -650,6 +650,13 @@ class App {
         const tokenMaps = LexCharsToTokenMaps(newText);
         const tokenMapsStr = tokenMaps.map((tokenMap) => tokenMap.tid).join(" ");
         this.logController.log(`Tokenized user input: ${tokenMapsStr}`);
+        
+        const formattedTokenMaps = tokenMaps.map((tokenMap) => `"${tokenMap.tid}"`).join(",")
+        this.logController.log(`Formatted Tokenized user input: [${formattedTokenMaps}]`);
+
+        const processedTokenMaps = ProcessTokens(tokenMaps.map((tokenMap) => tokenMap.tid));
+        const processedTokenMapsStr = processedTokenMaps.join(" ");
+        this.logController.log(`Processed Tokenized user input: ${processedTokenMapsStr}`);
     }
 
     /**

@@ -2,6 +2,40 @@
 let CharMapper = GetTokenName;
 
 
+function ProcessTokens(tokenSequence){
+    
+    console.log(ConvertGroupedTokenMap(charTokenMapGrouped));
+    
+    let patternKeyword = ["UpperP","LowerA","LowerT","LowerT","LowerE","LowerR","LowerN"];
+    
+    if (tokenSequence.length < patternKeyword.length){
+        return tokenSequence;
+    }
+    
+    let step = 0;
+    
+    while (step + patternKeyword.length <= tokenSequence.length){
+
+        let matchFound = true;
+        
+        for (let i = 0; i < patternKeyword.length; i++){
+            if (tokenSequence[step + i] !== patternKeyword[i]){
+                matchFound = false;
+                break;
+            }
+        }
+        
+        if (matchFound){
+            const before = tokenSequence.slice(0, step);
+            const after = tokenSequence.slice(step + patternKeyword.length);
+            return before.concat(["PatternKeyword"], after);
+        }
+        
+        step++;
+    }
+    
+    return tokenSequence;
+}
 
 /**
  * Converts a string of characters into a map of tokens where each character is matched to a corresponding token.
